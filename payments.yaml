@@ -1,0 +1,300 @@
+openapi: 3.0.3
+info:
+  title: Payments API Documentation
+  version: 1.1.0
+  contact:
+    name: chaitanya rekapalli
+    url: www.chaitanya.com
+    email: chaitanya.rekapalli@outlook.com
+servers:
+  - url: http://127.0.0.1:5000
+    description: Development Server
+  - url: http://192.4.8.1:5000
+    description: Production Server
+  - url: http://192.169.4.1:5000
+    description: Certification Server
+  - url: http://182.1.1.1:5000
+    description: QA Server
+    
+paths: 
+    /apiStatus:
+      get: 
+        responses:
+          '200':
+            description: API is running
+            content: 
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                examples:
+                    api-status-up-example:
+                      value:
+                        message: API is UP!
+                        date: "2024-11-24"
+                    api-status-down-example:
+                      value:
+                        message: API is Down!
+                        date: "2024-11-24"
+                    api-status-not-responding-example:
+                      value:
+                        message: API is not responding!
+                        date: "2024-11-24"
+  
+          '400':
+            description: API is down
+            content: 
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          '503':
+            description: API was decomissioned
+            content: 
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+    
+    
+    /payments: 
+      post: 
+        responses:
+          '200':
+              description: Make a payment
+              content:
+                appplication/json:
+                  schema:
+                    type: object
+                    properties:
+                      amount:
+                        type: integer
+                      payer_upi:
+                        type: string
+                      payee_upi:
+                        type: string
+                      note:
+                        type: string
+                      status:
+                        type: string
+                      timestamp:
+                        type: string
+                      transaction_id:
+                        type: string
+        
+        
+          '201':
+            description: Payment initiated successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    amount:
+                      type: integer
+                    payer_upi:
+                      type: string
+                    payee_upi:
+                      type: string
+                    note:
+                      type: string
+                    status:
+                      type: string
+                    timestamp:
+                      type: string
+                    transaction_id:
+                      type: string
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  amount:
+                    type: integer
+                    minimum: 0
+                    maximum: 1000
+                  payer_upi:
+                    type: string
+                  payee_upi:
+                    type: string
+                  note:
+                    type: string
+                additionalProperties: false
+                required: 
+                  - amount
+                  - payee_upi
+                  - payer_upi
+              examples:
+                  succes-transaction:
+                    value:
+                      amount: 200
+                      payer_upi: abc@sbi
+                      payee_upi: bcd@kvb
+                      note: "send me the amount"
+                  payer-data-missing:
+                    value:
+                      amount: 500
+                      payer_upi: ' '
+                      payee_upi: bcd@kvb
+                      note: "anonymous payment"
+                      
+      
+    /payments/{transaction_id}:
+      put: 
+        description: updating the transaction by transaction ID
+        parameters:
+          - name: transaction_id
+            in: path
+            required: true
+            schema: 
+              type: string
+        
+        responses: 
+          '201':
+            description: Payment initiated successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    amount:
+                      type: integer
+                    payer_upi:
+                      type: string
+                    payee_upi:
+                      type: string
+                    note:
+                      type: string
+                    status:
+                      type: string
+                    timestamp:
+                      type: string
+                    transaction_id:
+                      type: string
+          
+        requestBody: 
+          content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    amount:
+                      type: integer
+                      minimum: 0
+                      maximum: 100000
+                    payer_upi:
+                      type: string
+                    payee_upi:
+                      type: string
+                    note:
+                      type: string
+      
+      delete:
+        description: To delete the transaction
+        parameters:
+          - name: transaction_id
+            in: path
+            required: true
+            schema: 
+              type: string
+              
+        responses:
+          '204': 
+            description: Payment deleted successfully
+            
+      get:
+        description: To get the transaction
+        parameters: 
+          - name: transaction_id
+            in: path
+            required: true
+            schema: 
+              type: string
+              
+        responses:
+          '200':
+              description: Fetch one transaction if successful
+              content:
+                appplication/json:
+                  schema:
+                    type: object
+                    properties:
+                      amount:
+                        type: integer
+                      payer_upi:
+                        type: string
+                      payee_upi:
+                        type: string
+                      note:
+                        type: string
+                      status:
+                        type: string
+                      timestamp:
+                        type: string
+                      transaction_id:
+                        type: string
+                  examples:
+                    initiated-success-example:
+                      value:
+                        transaction_id: "123456789011"
+                        date: "2024-11-24"
+                        timestamp: 11 am
+                        amount: 500
+                        payer_upi: abc@sbi
+                        payee_upi: def@kvb
+                        note: books
+                        status: initiated
+                    completed-success-example:
+                      value:
+                        transaction_id: "123456789011"
+                        date: "2024-11-24"
+                        timestamp: 11 am
+                        amount: 500
+                        payer_upi: abc@sbi
+                        payee_upi: def@kvb
+                        note: books
+                        status: success
+                    empty-note-example:
+                      value:
+                        transaction_id: "123456789011"
+                        date: "2024-11-24"
+                        timestamp: 11 am
+                        amount: 500
+                        payer_upi: abc@sbi
+                        payee_upi: def@kvb
+                        note: ' '
+                        status: success
+                    transaction-note-present:
+                      value:
+                        transaction_id: "123456789011"
+                        date: "2024-11-24"
+                        timestamp: 11 am
+                        amount: 500
+                        payer_upi: abc@sbi
+                        payee_upi: def@kvb
+                        note: 'value present '
+                        status: success
+                      
+                    
+          
+          '404':
+              description: Transaction not found
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                
+                
+    
+    /signUP: {}
